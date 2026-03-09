@@ -1,0 +1,23 @@
+# Astro build output
+dist/
+
+# Node
+node_modules/
+
+# Notion export (source data, not needed for site)
+notion_export/
+
+# Scripts (internal tooling)
+scripts/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Env
+.env
+.env.*

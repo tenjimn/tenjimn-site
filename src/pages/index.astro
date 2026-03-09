@@ -1,0 +1,283 @@
+---
+import Layout from '../layouts/Layout.astro';
+import '../styles/global.css';
+import { getCollection } from 'astro:content';
+
+// Content Collections から記事取得 → order順にソート
+const allPosts = await getCollection('blog');
+const workArticles = allPosts
+  .filter((post) => post.data.category === 'work')
+  .sort((a, b) => (a.data.order ?? 999) - (b.data.order ?? 999));
+const lifeArticles = allPosts
+  .filter((post) => post.data.category === 'life')
+  .sort((a, b) => (a.data.order ?? 999) - (b.data.order ?? 999));
+
+// Experience データ
+const experiences = [
+  {
+    text: '10X.fm Podcast 出演 vol.1',
+    url: 'https://podcasters.spotify.com/pod/show/10xfm/episodes/41-110X--GrowthSuccess-e1mkbfi/a-a8d5quk',
+    extra: { text: 'vol.2', url: 'https://podcasters.spotify.com/pod/show/10xfm/episodes/36-Stailer2-e1m39ru' },
+  },
+  {
+    text: '界隈.chat Podcast 出演',
+    url: 'https://ysdyt.hatenablog.jp/entry/adventcalendar-10x-6th-anniversary',
+  },
+  {
+    text: 'Yahoo! JAPAN Tech Blog 執筆',
+    url: 'https://techblog.yahoo.co.jp/entry/2022040430273171/',
+  },
+  {
+    text: 'Yahoo! JAPAN Tech Conference 2022 登壇',
+    url: 'https://youtu.be/eAQ05phtxqw',
+    extra: { text: 'レポート', url: 'https://levtech.jp/media/article/column/detail_66/' },
+  },
+  {
+    text: 'Meety データアナリスト特集 掲載',
+    url: 'https://meety.net/pickups/cdzzs6bof_s',
+  },
+  {
+    text: '日本経済新聞 Data Science Fes 2019 登壇',
+    url: 'https://dsfes.nikkei.co.jp/2019/report/sa/session2/',
+  },
+  {
+    text: 'データ分析:ゆるふわキャリア相談会 主催',
+    url: 'https://connpass.com/event/147298/',
+  },
+  {
+    text: 'Wantedly キャリアインタビュー',
+    url: 'https://t.co/XWugRxkWn6?amp=1',
+  },
+];
+---
+
+<Layout title="tenjimn.com" description="Work & Life — tenjimn">
+
+  <!-- ====== Header ====== -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-[var(--color-border)]">
+    <nav class="max-w-5xl mx-auto px-4 md:px-8 h-12 flex items-center justify-between">
+      <a href="/" class="text-xs font-medium tracking-[0.15em] uppercase hover:opacity-50 transition-opacity duration-300">
+        tenjimn
+      </a>
+      <div class="flex items-center gap-5 md:gap-6">
+        <a href="#work" class="text-[10px] md:text-xs tracking-[0.1em] uppercase text-[var(--color-secondary)] hover:text-black transition-colors duration-300">Work</a>
+        <a href="#life" class="text-[10px] md:text-xs tracking-[0.1em] uppercase text-[var(--color-secondary)] hover:text-black transition-colors duration-300">Life</a>
+        <a href="#about" class="text-[10px] md:text-xs tracking-[0.1em] uppercase text-[var(--color-secondary)] hover:text-black transition-colors duration-300">About</a>
+        <a href="#contact" class="text-[10px] md:text-xs tracking-[0.1em] uppercase text-[var(--color-secondary)] hover:text-black transition-colors duration-300">Contact</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ====== Hero (ヘッダー画像背景) ====== -->
+  <section class="hero-section relative min-h-[70vh] md:min-h-screen flex flex-col justify-center items-center px-4 md:px-8 overflow-hidden">
+    <div class="hero-bg absolute inset-0 bg-cover bg-center" style="background-image: url('/images/hero-bg.jpeg');"></div>
+    <div class="hero-overlay absolute inset-0"></div>
+    <div class="text-center max-w-2xl relative z-10">
+      <h1 class="text-4xl md:text-6xl lg:text-7xl font-light tracking-[-0.02em] leading-[1.1] animate-fade-in-up" style="font-family: 'Cormorant Garamond', serif;">
+        tenjimn
+      </h1>
+    </div>
+    <div class="absolute bottom-8 animate-bounce-slow z-10">
+      <svg width="14" height="20" viewBox="0 0 14 20" fill="none" class="text-[var(--color-muted)]">
+        <rect x="1" y="1" width="12" height="18" rx="6" stroke="currentColor" stroke-width="1"/>
+        <circle cx="7" cy="6" r="1.5" fill="currentColor" class="animate-scroll-dot"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ====== Work Section (灰色背景) ====== -->
+  <section id="work" class="py-16 md:py-24 px-4 md:px-8 bg-[var(--color-bg-subtle)] border-t border-[var(--color-border)]">
+    <div class="max-w-5xl mx-auto">
+      <div class="mb-10 md:mb-16">
+        <h2 class="text-2xl md:text-3xl font-light tracking-[-0.01em]" style="font-family: 'Cormorant Garamond', serif;">Work</h2>
+      </div>
+      <div class="space-y-0">
+        {workArticles.map((article) => (
+          <a
+            href={`/blog/${article.data.slug || article.slug}`}
+            class="group block border-b border-[var(--color-border)] py-5 md:py-6 transition-all duration-500 hover:pl-3"
+          >
+            <div class="flex items-baseline justify-between gap-3 md:gap-6">
+              <h3 class="text-sm md:text-base font-normal tracking-wide group-hover:tracking-wider transition-all duration-500">
+                {article.data.title}
+              </h3>
+              <span class="w-3 h-px bg-[var(--color-muted)] group-hover:w-6 group-hover:bg-black transition-all duration-500 shrink-0"></span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== Life Section (白色背景、画像カード) ====== -->
+  <section id="life" class="py-16 md:py-24 px-4 md:px-8 border-t border-[var(--color-border)]">
+    <div class="max-w-5xl mx-auto">
+      <div class="mb-10 md:mb-16">
+        <h2 class="text-2xl md:text-3xl font-light tracking-[-0.01em]" style="font-family: 'Cormorant Garamond', serif;">Life</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+        {lifeArticles.map((article) => (
+          <a
+            href={`/blog/${article.data.slug || article.slug}`}
+            class="life-card group relative block overflow-hidden rounded-sm transition-all duration-500"
+          >
+            {article.data.heroImage ? (
+              <div class="life-card-inner relative">
+                <div
+                  class="life-card-bg absolute inset-0 bg-cover bg-center transition-all duration-700 group-hover:scale-105"
+                  style={`background-image: url('${article.data.heroImage}');`}
+                ></div>
+                <div class="life-card-overlay absolute inset-0 transition-all duration-500"></div>
+                <div class="relative z-10 p-4 md:p-6">
+                  <h3 class="text-sm md:text-base font-normal tracking-wide text-gray-800 group-hover:text-black transition-all duration-500">
+                    {article.data.title}
+                  </h3>
+                </div>
+              </div>
+            ) : (
+              <div class="p-4 md:p-6 bg-gray-50">
+                <h3 class="text-sm md:text-base font-normal tracking-wide group-hover:tracking-wider transition-all duration-500">
+                  {article.data.title}
+                </h3>
+              </div>
+            )}
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== About Me Section (画像背景) ====== -->
+  <section id="about" class="about-section relative py-16 md:py-24 px-4 md:px-8 bg-[var(--color-bg-subtle)] border-t border-[var(--color-border)] overflow-hidden">
+    <div class="about-bg absolute inset-0 bg-cover bg-center" style="background-image: url('/images/about-bg.jpg');"></div>
+    <div class="about-overlay absolute inset-0"></div>
+    <div class="max-w-5xl mx-auto relative z-10">
+      <div class="mb-10 md:mb-16">
+        <h2 class="text-2xl md:text-3xl font-light tracking-[-0.01em]" style="font-family: 'Cormorant Garamond', serif;">About me</h2>
+      </div>
+      <div class="max-w-2xl">
+        <p class="text-xs md:text-sm text-[var(--color-secondary)] font-light leading-[2] tracking-wide">
+          北海道生まれ・北海道育ち・北海道住み、可愛い娘がいる父親です。<br/>
+          主にIT企業でデータやAI関連のお仕事をしています。<br/>
+          これまで日産自動車・アクセンチュア・ZOZO・ヤフー・10X・LayerXに参画、その他個人で複数社のご支援など。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== Experience Section (白色背景、箇条書き) ====== -->
+  <section id="experience" class="py-16 md:py-24 px-4 md:px-8 border-t border-[var(--color-border)]">
+    <div class="max-w-5xl mx-auto">
+      <div class="mb-8 md:mb-12">
+        <h2 class="text-2xl md:text-3xl font-light tracking-[-0.01em]" style="font-family: 'Cormorant Garamond', serif;">Experience</h2>
+      </div>
+      <ul class="experience-list space-y-2">
+        {experiences.map((exp) => (
+          <li class="text-xs md:text-sm font-light tracking-wide text-[var(--color-secondary)]">
+            <a href={exp.url} target="_blank" rel="noopener noreferrer"
+              class="hover:text-black transition-colors duration-300 border-b border-transparent hover:border-black">
+              {exp.text}
+            </a>
+            {exp.extra && (
+              <>
+                <span class="text-[var(--color-muted)]"> / </span>
+                <a href={exp.extra.url} target="_blank" rel="noopener noreferrer"
+                  class="hover:text-black transition-colors duration-300 border-b border-transparent hover:border-black">
+                  {exp.extra.text}
+                </a>
+              </>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- ====== Contact / Footer (灰色背景) ====== -->
+  <footer id="contact" class="py-16 md:py-24 px-4 md:px-8 bg-[var(--color-bg-subtle)] border-t border-[var(--color-border)]">
+    <div class="max-w-5xl mx-auto">
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
+        <div>
+          <h2 class="text-2xl md:text-3xl font-light tracking-[-0.01em] mb-6" style="font-family: 'Cormorant Garamond', serif;">Contact</h2>
+          <div class="flex gap-6">
+            <a href="https://x.com/tenjimn" target="_blank" rel="noopener noreferrer"
+              class="text-[10px] md:text-xs tracking-[0.15em] uppercase text-[var(--color-secondary)] hover:text-black transition-colors duration-300 border-b border-transparent hover:border-black pb-1">X</a>
+            <a href="https://github.com/tenjimn" target="_blank" rel="noopener noreferrer"
+              class="text-[10px] md:text-xs tracking-[0.15em] uppercase text-[var(--color-secondary)] hover:text-black transition-colors duration-300 border-b border-transparent hover:border-black pb-1">GitHub</a>
+            <a href="https://www.instagram.com/tenjimn/" target="_blank" rel="noopener noreferrer"
+              class="text-[10px] md:text-xs tracking-[0.15em] uppercase text-[var(--color-secondary)] hover:text-black transition-colors duration-300 border-b border-transparent hover:border-black pb-1">Instagram</a>
+            <a href="https://www.facebook.com/daishi.tenjimbayashi/" target="_blank" rel="noopener noreferrer"
+              class="text-[10px] md:text-xs tracking-[0.15em] uppercase text-[var(--color-secondary)] hover:text-black transition-colors duration-300 border-b border-transparent hover:border-black pb-1">Facebook</a>
+          </div>
+        </div>
+        <p class="text-[10px] text-[var(--color-muted)] tracking-wider">&copy; tenjimn. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+</Layout>
+
+<style>
+  /* ====== Hero 背景 ====== */
+  .hero-bg {
+    opacity: 0.35;
+    filter: grayscale(30%);
+  }
+  .hero-overlay {
+    background: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.65) 100%);
+  }
+
+  /* ====== Life Cards ====== */
+  .life-card-inner {
+    min-height: 100px;
+  }
+  .life-card-bg {
+    opacity: 0.35;
+    filter: grayscale(30%);
+  }
+  .life-card:hover .life-card-bg {
+    opacity: 0.5;
+    filter: grayscale(0%);
+  }
+  .life-card-overlay {
+    background: linear-gradient(135deg, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.45) 100%);
+  }
+  .life-card:hover .life-card-overlay {
+    background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.3) 100%);
+  }
+
+  /* ====== About Me 背景 ====== */
+  .about-bg {
+    opacity: 0.30;
+    filter: grayscale(60%);
+  }
+  .about-overlay {
+    background: linear-gradient(180deg, rgba(250,250,250,0.75) 0%, rgba(250,250,250,0.7) 50%, rgba(250,250,250,0.8) 100%);
+  }
+
+  /* ====== Experience 箇条書き ====== */
+  .experience-list {
+    list-style: disc;
+    padding-left: 1.25rem;
+  }
+  .experience-list li::marker {
+    color: var(--color-muted);
+  }
+
+  /* ====== Animations ====== */
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scroll-dot {
+    0%, 100% { transform: translateY(0); opacity: 1; }
+    50% { transform: translateY(6px); opacity: 0.3; }
+  }
+  @keyframes bounce-slow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(5px); }
+  }
+  .animate-fade-in-up { animation: fade-in-up 1s ease-out 0.3s both; }
+  .animate-scroll-dot { animation: scroll-dot 2s ease-in-out infinite; }
+  .animate-bounce-slow { animation: bounce-slow 2.5s ease-in-out infinite; }
+</style>
