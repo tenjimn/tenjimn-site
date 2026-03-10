@@ -9,15 +9,15 @@ heroImage: '/images/googleドライブの複数画像を結合して一枚の画
 
 こんなふうに同じ大きさの複数画像から、
 
-![](/images/googleドライブの複数画像を結合して一枚の画像で保存し直す/Untitled 1.png)
+![](/images/googleドライブの複数画像を結合して一枚の画像で保存し直す/Untitled%201.png)
 
 こんなふうに1/4ずつ結合された画像をサクッと作る方法。
 
-![](/images/googleドライブの複数画像を結合して一枚の画像で保存し直す/Untitled 2.png)
+![](/images/googleドライブの複数画像を結合して一枚の画像で保存し直す/Untitled%202.png)
 
 前提として、Googleドライブには、catおよびdogにフォルダが切られており、さらに中が毛色[color]ごとに分かれているとする。
 
-![](/images/googleドライブの複数画像を結合して一枚の画像で保存し直す/Untitled 3.png)
+![](/images/googleドライブの複数画像を結合して一枚の画像で保存し直す/Untitled%203.png)
 
 各フォルダにはcolor_*.jpgの命名規則で、画像が保存されている。
 
@@ -152,6 +152,6 @@ for image in dog_images:
 
 例として、brownのフォルダにある4枚の画像からは
 
-![](/images/googleドライブの複数画像を結合して一枚の画像で保存し直す/Untitled 1.png)
+![](/images/googleドライブの複数画像を結合して一枚の画像で保存し直す/Untitled%201.png)
 
 このような1枚の画像が生成され、フォルダに格納される。

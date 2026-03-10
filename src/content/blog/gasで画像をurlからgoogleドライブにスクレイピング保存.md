@@ -15,7 +15,7 @@ Googleスプレッドシートでは、IMAGE関数を使うことでURLを参照
 
 スプレッドシートの構成として、こんな風に商品ごとに画像URLが横に並んでいるとする。
 
-![](/images/gasで画像をurlからgoogleドライブにスクレイピング保存/Untitled 1.png)
+![](/images/gasで画像をurlからgoogleドライブにスクレイピング保存/Untitled%201.png)
 
 画像を収集したいフォルダのIDを確認する（画像だと1sqsuo～）
 
@@ -119,10 +119,10 @@ function myFunction() {
 }
 ```
 
-![](/images/gasで画像をurlからgoogleドライブにスクレイピング保存/Untitled 2.png)
+![](/images/gasで画像をurlからgoogleドライブにスクレイピング保存/Untitled%202.png)
 
 商品ごとにフォルダが作られている。
 
-![](/images/gasで画像をurlからgoogleドライブにスクレイピング保存/Untitled 3.png)
+![](/images/gasで画像をurlからgoogleドライブにスクレイピング保存/Untitled%203.png)
 
 各フォルダには商品名_*.jpgの命名規則で、画像が保存されている。

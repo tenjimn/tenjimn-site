@@ -36,11 +36,11 @@ function deleteSheets() {
 }
 ```
 
-![Untitled](/images/gasでgoogleスプレッドシートの複数シートを一括削除する/Untitled 1.png)
+![Untitled](/images/gasでgoogleスプレッドシートの複数シートを一括削除する/Untitled%201.png)
 
 初回は承認が必要だと言われるが、気にせずクリック。
 
-![Untitled](/images/gasでgoogleスプレッドシートの複数シートを一括削除する/Untitled 2.png)
+![Untitled](/images/gasでgoogleスプレッドシートの複数シートを一括削除する/Untitled%202.png)
 
 成功すると、「削除するシート名」で指定したシートが一括削除できる。
 
@@ -48,8 +48,8 @@ function deleteSheets() {
 
 before
 
-![Untitled](/images/gasでgoogleスプレッドシートの複数シートを一括削除する/Untitled 3.png)
+![Untitled](/images/gasでgoogleスプレッドシートの複数シートを一括削除する/Untitled%203.png)
 
 after
 
-![Untitled](/images/gasでgoogleスプレッドシートの複数シートを一括削除する/Untitled 4.png)
+![Untitled](/images/gasでgoogleスプレッドシートの複数シートを一括削除する/Untitled%204.png)

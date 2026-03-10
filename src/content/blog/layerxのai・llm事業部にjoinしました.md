@@ -46,11 +46,7 @@ heroImage: '/images/layerxのai・llm事業部にjoinしました/IMG_9878.jpeg'
 
 [**元アナリストがdbtでプロダクトのデータパイプライン構築できるようになった話**](https://ten-ezo.com/e560ca5075ce4c9687b9304cd2a82c93)
 
-[元アナリストがdbtでプロダクトのデータパイプライン構築できるようになった話](https://ten-ezo.com/e560ca5075ce4c9687b9304cd2a82c93)
-
 [**「データプロダクト」とは何かを自分なりに考えてみた**](https://ten-ezo.com/fe5548172351466ca3ef7996fbeeb507)
-
-[「データプロダクト」とは何かを自分なりに考えてみた](https://ten-ezo.com/fe5548172351466ca3ef7996fbeeb507)
 
 一方で、ここ最近の生成AIの進化を見ると、僕のような半端者のデータ人材は取って代わられる未来も容易に想像できました。
 
@@ -97,8 +93,6 @@ AI導入の過渡期である現時点においては、データアナリスト
 仮にいままでの僕がデータ領域としてのキャリアを歩んでおらず、また愛を持って接したことがなければ、きっと目には止まっていなかったことでしょう。
 
 [**データアナリストのスキルがLayerXのAI事業PjMにどう活きるか**](https://note.com/yamaga_my/n/n07c955bfc227)
-
-[データアナリストのスキルがLayerXのAI事業PjMにどう活きるか｜yamaga_my](https://note.com/yamaga_my/n/n07c955bfc227)
 
 そんな背景も手伝い、こちらからドアノックしてお話させていただくと、それまでのデータアナリストからデータプロダクトマネージャーへのピボットを始め、経験した様々なことがフラッシュバックしたりするなど、話も大いに盛り上がったのでした。
 
@@ -160,11 +154,7 @@ AIやデータが今後も世界の重要要素であり続けるのは間違い
 
 [**A Day in the Life of a Palantir Forward Deployed Software Engineer**](https://blog.palantir.com/a-day-in-the-life-of-a-palantir-forward-deployed-software-engineer-45ef2de257b1)
 
-[A Day in the Life of a Palantir Forward Deployed Software Engineer](https://blog.palantir.com/a-day-in-the-life-of-a-palantir-forward-deployed-software-engineer-45ef2de257b1)
-
 [**エージェントAI時代に求められるForward Deployed Engineerとは？**](https://www.tc3.co.jp/forward-deployed-engineer-and-bizdev/)
-
-[エージェントAI時代に求められるForward Deployed Engineerとは？](https://www.tc3.co.jp/forward-deployed-engineer-and-bizdev/)
 
 ## データへの愛とAIが背中を押してくれた
 
