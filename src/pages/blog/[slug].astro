@@ -139,6 +139,14 @@ const { Content } = await render(post);
     margin-bottom: 1.25rem;
   }
 
+  .prose :global(ul) {
+    list-style-type: disc;
+  }
+
+  .prose :global(ol) {
+    list-style-type: decimal;
+  }
+
   .prose :global(li) {
     margin-bottom: 0.35rem;
   }
@@ -196,5 +204,28 @@ const { Content } = await render(post);
     .prose {
       font-size: 0.9375rem;
     }
+  }
+
+  /* ====== Gallery Grid (Notion DB) ====== */
+  .prose :global(.gallery-grid) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.75rem;
+    margin: 1rem 0 1.5rem;
+  }
+
+  .prose :global(.gallery-item) {
+    background: #f8f8f8;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+
+  .prose :global(.gallery-caption) {
+    font-size: 0.75rem;
+    color: #555;
+    margin: 0;
+    line-height: 1.4;
   }
 </style>

@@ -25,7 +25,23 @@ select
 
 わかりやすく途中集計である`ymd_minus_3day`,`day_of_week_of_ymd_minus_3day`も出力しているが、日別の元データに対して`week_start_date`でgroup byして集計すれば、特定曜日始まりで週単位の集計をすることが可能。
 
-[出力結果](SQL%E3%81%A7%E7%89%B9%E5%AE%9A%E6%9B%9C%E6%97%A5%E5%A7%8B%E3%81%BE%E3%82%8A%E9%80%B1%E5%8D%98%E4%BD%8D%E3%81%AE%E9%9B%86%E8%A8%88%E3%82%92%E3%81%99%E3%82%8B/%E5%87%BA%E5%8A%9B%E7%B5%90%E6%9E%9C%206e7716f891594af195e1a3dda332ee35.csv)
+<div class="gallery-grid">
+<div class="gallery-item"><p class="gallery-caption">1</p></div>
+<div class="gallery-item"><p class="gallery-caption">2</p></div>
+<div class="gallery-item"><p class="gallery-caption">3</p></div>
+<div class="gallery-item"><p class="gallery-caption">4</p></div>
+<div class="gallery-item"><p class="gallery-caption">5</p></div>
+<div class="gallery-item"><p class="gallery-caption">6</p></div>
+<div class="gallery-item"><p class="gallery-caption">7</p></div>
+<div class="gallery-item"><p class="gallery-caption">8</p></div>
+<div class="gallery-item"><p class="gallery-caption">9</p></div>
+<div class="gallery-item"><p class="gallery-caption">10</p></div>
+<div class="gallery-item"><p class="gallery-caption">11</p></div>
+<div class="gallery-item"><p class="gallery-caption">12</p></div>
+<div class="gallery-item"><p class="gallery-caption">13</p></div>
+<div class="gallery-item"><p class="gallery-caption">14</p></div>
+<div class="gallery-item"><p class="gallery-caption">15</p></div>
+</div>
 
 上記の例は水曜日始まりのなので3dayになっているが、木曜日始まりなら4day、火曜日始まりなら2dayにすればよい。
 

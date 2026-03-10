@@ -82,7 +82,11 @@ BigQueryの場合は、分割テーブルのフィールドを明記しなくて
 
 どういうことかというと、例えばYMDでpartitionが切られた以下のようなtestテーブルの場合
 
-[test](Hive%E3%81%A8BigQuery%E3%81%AE%E9%81%95%E3%81%84%E3%81%A7%E8%8B%A6%E3%81%97%E3%82%93%E3%81%A0%E3%81%93%E3%81%A8%E3%83%A1%E3%83%A2/test%2048d3328a5569447b9d89bf60bfce1587.csv)
+<div class="gallery-grid">
+<div class="gallery-item"><p class="gallery-caption">20200101</p></div>
+<div class="gallery-item"><p class="gallery-caption">20200102</p></div>
+<div class="gallery-item"><p class="gallery-caption">20200103</p></div>
+</div>
 
 以下のように特に気にせずとも、全YMDをまたいでselectすることができた
 
