@@ -384,12 +384,15 @@ def remove_hr_after_headings(md_content: str) -> str:
     return '\n'.join(cleaned)
 
 
-def convert_csv_gallery(md_content: str, md_path: Path) -> str:
+def convert_csv_gallery(md_content: str, md_path: Path, article_slug: str) -> str:
     """Notion DBのCSVリンクをキャプションリストのギャラリー形式に変換する。
-    [DB Name](path/to/file.csv) → キャプション付きグリッドHTML"""
+    画像が同封されていれば紐付けて出力する。
+    [DB Name](path/to/file.csv) → 画像付きまたはキャプションのみのグリッドHTML"""
     csv_link_pattern = re.compile(
         r'\[([^\]]+)\]\(([^)]*\.csv)\)'
     )
+    
+    image_dir = get_image_dir_for_article(md_path)
     
     def replace_csv_link(match):
         db_name = match.group(1)
@@ -418,14 +421,56 @@ def convert_csv_gallery(md_content: str, md_path: Path) -> str:
         
         if not captions:
             return match.group(0)
+            
+        # 出力先ディレクトリ
+        article_img_dir = OUTPUT_IMAGES / article_slug
         
-        # HTMLギャラリーを生成（キャプションのみ）
+        # HTMLギャラリーを生成
         items_html = []
         for caption in captions:
-            items_html.append(f'<div class="gallery-item"><p class="gallery-caption">{caption}</p></div>')
+            # 画像を探す
+            img_src_path = None
+            if image_dir and image_dir.exists():
+                clean_caption = caption.replace(" ", "").replace("　", "")
+                for f in image_dir.iterdir():
+                    if f.is_file() and f.suffix.lower() in ['.jpg', '.jpeg', '.png', '.gif', '.heic', '.webp']:
+                        fname_clean = f.stem.replace(" ", "").replace("　", "")
+                        # キャプション文字列がファイル名に（かなりの割合で）含まれているか判定
+                        if clean_caption in fname_clean or fname_clean in clean_caption:
+                            img_src_path = f
+                            break
+                            
+            if img_src_path:
+                # 画像をコピー・変換
+                article_img_dir.mkdir(parents=True, exist_ok=True)
+                img_filename = img_src_path.name
+                dest_path = article_img_dir / img_filename
+                
+                shutil.copy2(img_src_path, dest_path)
+                
+                # HEIC→JPEG変換
+                if img_filename.lower().endswith('.heic'):
+                    jpeg_filename = Path(img_filename).stem + '.jpeg'
+                    jpeg_dest = article_img_dir / jpeg_filename
+                    try:
+                        import subprocess
+                        subprocess.run(
+                            ['sips', '-s', 'format', 'jpeg', str(dest_path), '--out', str(jpeg_dest)],
+                            capture_output=True, check=True
+                        )
+                        dest_path.unlink()  # HEICファイルを削除
+                        img_filename = jpeg_filename
+                        print(f"  🔄 ギャラリー画像HEIC→JPEG変換: {img_src_path.name} → {jpeg_filename}")
+                    except Exception as e:
+                        print(f"  ⚠️ ギャラリー画像HEIC変換失敗: {e}")
+                
+                new_path = f"/images/{article_slug}/{quote(img_filename)}"
+                items_html.append(f'<div class="gallery-item"><img src="{new_path}" alt="{caption}" loading="lazy" /><p class="gallery-caption">{caption}</p></div>')
+            else:
+                items_html.append(f'<div class="gallery-item"><p class="gallery-caption">{caption}</p></div>')
         
         grid_html = f'<div class="gallery-grid">\n' + '\n'.join(items_html) + '\n</div>'
-        print(f"  🖼️  ギャラリー変換: {db_name} → {len(captions)} 件")
+        print(f"  🖼️  ギャラリー変換: {db_name} → {len(captions)} 件 (画像付与あり)")
         return grid_html
     
     return csv_link_pattern.sub(replace_csv_link, md_content)
@@ -449,6 +494,47 @@ def convert_internal_links(md_content: str, all_slugs: dict) -> str:
         replace_tenezo_link,
         md_content
     )
+    return md_content
+
+
+def convert_twitter_embeds(md_content: str) -> str:
+    """Twitter/XのプレーンURLリンクを公式埋め込みblockquoteに変換する。
+    [URL](URL) パターン（URLがリンクテキストそのもの）のみを変換。
+    [テキスト](URL) のような既にテキスト付きのリンクは変換しない。"""
+    # パターン: [https://twitter.com/...](https://twitter.com/...) or [https://x.com/...](https://x.com/...)
+    # リンクテキストとURLが同一(またはほぼ同一)のもののみ対象
+    twitter_url_pattern = re.compile(
+        r'\[(https?://(?:twitter\.com|x\.com)/[^\]]+)\]\((https?://(?:twitter\.com|x\.com)/[^)]+)\)',
+        re.IGNORECASE
+    )
+    
+    def replace_twitter_link(match):
+        link_text = match.group(1)
+        url = match.group(2)
+        # リンクテキストがURL自体である場合のみ変換
+        text_clean = link_text.strip().rstrip('/')
+        url_clean = url.strip().rstrip('/')
+        if text_clean == url_clean or url_clean.startswith(text_clean) or text_clean.startswith(url_clean):
+            # status URLのみ埋め込み対象（ツイート）
+            if '/status/' in url:
+                return f'<blockquote class="twitter-tweet"><a href="{url}"></a></blockquote>'
+        return match.group(0)
+    
+    md_content = twitter_url_pattern.sub(replace_twitter_link, md_content)
+    
+    # 段落としてURLだけが単独行にあるパターンも対応
+    # https://twitter.com/.../status/... (リンク構文なし、URLのみの行)
+    bare_url_pattern = re.compile(
+        r'^(https?://(?:twitter\.com|x\.com)/\w+/status/\d+[^\s]*)\s*$',
+        re.MULTILINE | re.IGNORECASE
+    )
+    
+    def replace_bare_url(match):
+        url = match.group(1)
+        return f'<blockquote class="twitter-tweet"><a href="{url}"></a></blockquote>'
+    
+    md_content = bare_url_pattern.sub(replace_bare_url, md_content)
+    
     return md_content
 
 
@@ -558,11 +644,14 @@ def process_category(category_name: str, category_dir: Path, csv_path: Path):
         # 内部リンク変換
         content = convert_internal_links(content, {})
 
+        # Twitter/X埋め込み変換
+        content = convert_twitter_embeds(content)
+
         # h2/h3直後のhr除去
         content = remove_hr_after_headings(content)
 
         # CSVギャラリー変換
-        content = convert_csv_gallery(content, md_path)
+        content = convert_csv_gallery(content, md_path, slug)
 
         # 画像処理
         content = process_images(content, md_path, slug)

@@ -31,19 +31,29 @@ python3 scripts/convert_notion.py
 - `src/content/blog/` に記事MDファイル
 - `public/images/{slug}/` に画像ファイル
 
-### 3. ローカルで確認
+### 3. 画像の紐付け（ギャラリー）
+もしNotionのギャラリービューをエクスポートした場合、CSVと画像は出力されますが自動では紐付きません。
+対象となる画像ファイル名に「キャプションと同じ名前」を含めて `notion_export/Article/Work(or Life)` 内に配置してからスクリプトを実行すると、自動で紐付け・コピー・HTML生成が行われます。
+
+### 4. ローカルで確認
 ```bash
 npm run dev
 ```
 http://localhost:4321 でサイトを確認。
 
-### 4. ビルド確認
+### 5. リンク切れツイートの確認
+```bash
+python3 scripts/check_dead_tweets.py
+```
+エラー（404/403）が出たツイートは記事内から表示されなくなっているので、該当記事を修正してください。
+
+### 6. ビルド確認
 ```bash
 npx astro build
 ```
 エラーが0件であることを確認。
 
-### 5. コミット & プッシュ
+### 7. コミット & プッシュ
 ```bash
 git add -A
 git commit -m "update articles"
@@ -56,6 +66,7 @@ Cloudflare Pagesが自動デプロイする。
 ### 画像が表示されない
 - `.heic` 画像は変換スクリプトで自動的にJPEGに変換される
 - 画像ファイル名にスペースがある場合はURLエンコード（`%20`）される
+- ギャラリーの画像は、ファイル名にキャプション文字列が含まれているか確認
 - `public/images/{slug}/` に画像が存在するか確認
 
 ### 太字が壊れている
