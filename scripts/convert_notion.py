@@ -427,26 +427,39 @@ def convert_csv_gallery(md_content: str, md_path: Path, article_slug: str) -> st
         
         # HTMLギャラリーを生成
         items_html = []
+        found_images_count = 0
         for caption in captions:
             # 画像を探す
             img_src_path = None
-            if image_dir and image_dir.exists():
-                clean_caption = caption.replace(" ", "").replace("　", "")
-                for f in image_dir.iterdir():
+            clean_caption = caption.replace(" ", "").replace("　", "")
+            
+            # 1. まずは出力先（public/images/...）にすでに存在するか確認
+            if article_img_dir.exists():
+                for f in article_img_dir.iterdir():
                     if f.is_file() and f.suffix.lower() in ['.jpg', '.jpeg', '.png', '.gif', '.heic', '.webp']:
                         fname_clean = f.stem.replace(" ", "").replace("　", "")
-                        # キャプション文字列がファイル名に（かなりの割合で）含まれているか判定
+                        if clean_caption in fname_clean or fname_clean in clean_caption:
+                            img_src_path = f
+                            break
+            
+            # 2. なければNotion Exportのディレクトリ（image_dir）を探す
+            if not img_src_path and image_dir and image_dir.exists():
+                for f in image_dir.rglob('*'):
+                    if f.is_file() and f.suffix.lower() in ['.jpg', '.jpeg', '.png', '.gif', '.heic', '.webp']:
+                        fname_clean = f.stem.replace(" ", "").replace("　", "")
                         if clean_caption in fname_clean or fname_clean in clean_caption:
                             img_src_path = f
                             break
                             
             if img_src_path:
+                found_images_count += 1
                 # 画像をコピー・変換
                 article_img_dir.mkdir(parents=True, exist_ok=True)
                 img_filename = img_src_path.name
                 dest_path = article_img_dir / img_filename
                 
-                shutil.copy2(img_src_path, dest_path)
+                if img_src_path != dest_path:
+                    shutil.copy2(img_src_path, dest_path)
                 
                 # HEIC→JPEG変換
                 if img_filename.lower().endswith('.heic'):
@@ -470,7 +483,10 @@ def convert_csv_gallery(md_content: str, md_path: Path, article_slug: str) -> st
                 items_html.append(f'<div class="gallery-item"><p class="gallery-caption">{caption}</p></div>')
         
         grid_html = f'<div class="gallery-grid">\n' + '\n'.join(items_html) + '\n</div>'
-        print(f"  🖼️  ギャラリー変換: {db_name} → {len(captions)} 件 (画像付与あり)")
+        if found_images_count > 0:
+            print(f"  🖼️  ギャラリー変換: {db_name} → {len(captions)} 件 (うち {found_images_count} 件画像付与あり)")
+        else:
+            print(f"  🖼️  ギャラリー変換: {db_name} → {len(captions)} 件 (画像なし)")
         return grid_html
     
     return csv_link_pattern.sub(replace_csv_link, md_content)
