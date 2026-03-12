@@ -405,10 +405,17 @@ def convert_csv_gallery(md_content: str, md_path: Path, article_slug: str) -> st
     画像が同封されていれば紐付けて出力する。
     [DB Name](path/to/file.csv) → 画像付きまたはキャプションのみのグリッドHTML"""
     csv_link_pattern = re.compile(
-        r'\[([^\]]+)\]\(([^)]*\.csv)\)'
+        r'\[([^\]]+)\]\((.*?\.csv)\)'
     )
     
     image_dir = get_image_dir_for_article(md_path)
+    
+    def scrub_text(text: str) -> str:
+        # 画像マッチング用に、ひらがなカタカナ漢字英数字以外（記号や空白）を可能な限り除去する
+        import string
+        for c in [' ', '　', '_', '、', '。', ',', '.', '・', '！', '？', '-', '(', ')', '（', '）', '[', ']']:
+            text = text.replace(c, '')
+        return text
     
     def replace_csv_link(match):
         db_name = match.group(1)
@@ -447,13 +454,13 @@ def convert_csv_gallery(md_content: str, md_path: Path, article_slug: str) -> st
         for caption in captions:
             # 画像を探す
             img_src_path = None
-            clean_caption = caption.replace(" ", "").replace("　", "")
+            clean_caption = scrub_text(caption)
             
             # 1. まずは出力先（public/images/...）にすでに存在するか確認
             if article_img_dir.exists():
                 for f in article_img_dir.iterdir():
                     if f.is_file() and f.suffix.lower() in ['.jpg', '.jpeg', '.png', '.gif', '.heic', '.webp']:
-                        fname_clean = f.stem.replace(" ", "").replace("　", "")
+                        fname_clean = scrub_text(f.stem)
                         if clean_caption in fname_clean or fname_clean in clean_caption:
                             img_src_path = f
                             break
@@ -462,7 +469,7 @@ def convert_csv_gallery(md_content: str, md_path: Path, article_slug: str) -> st
             if not img_src_path and image_dir and image_dir.exists():
                 for f in image_dir.rglob('*'):
                     if f.is_file() and f.suffix.lower() in ['.jpg', '.jpeg', '.png', '.gif', '.heic', '.webp']:
-                        fname_clean = f.stem.replace(" ", "").replace("　", "")
+                        fname_clean = scrub_text(f.stem)
                         if clean_caption in fname_clean or fname_clean in clean_caption:
                             img_src_path = f
                             break
