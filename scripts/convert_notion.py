@@ -349,6 +349,12 @@ def fix_bold_fullwidth_chars(md_content: str) -> str:
     bold_fullwidth = re.compile(r'\*\*([^*\n]*[）」】\]）][^*\n]*)\*\*')
     protected = bold_fullwidth.sub(r'<strong>\1</strong>', protected)
     
+    # さらに包括的なパターン: ** 任意の文字列 ** を <strong> に変換
+    # 既存のMarkdownリンク以外で、** が残ってしまうケースを一斉置換
+    # 連続する改行を含まない範囲でマッチ
+    any_bold = re.compile(r'\*\*([^*<>\n]+)\*\*')
+    protected = any_bold.sub(r'<strong>\1</strong>', protected)
+    
     # Step 3: プレースホルダーを元のリンクに復元
     for i, link in enumerate(links):
         protected = protected.replace(f'__LINK_PLACEHOLDER_{i}__', link)
@@ -356,8 +362,8 @@ def fix_bold_fullwidth_chars(md_content: str) -> str:
     return protected
 
 
-def remove_hr_after_headings(md_content: str) -> str:
-    """h2/h3の直後にある --- (水平線) を除去する。
+def remove_hr_around_headings(md_content: str) -> str:
+    """h2/h3の前後に存在する --- (水平線) を除去する。
     CSSのborder-bottomと重なって二重線に見えるのを防ぐ。"""
     lines = md_content.split('\n')
     cleaned = []
@@ -372,13 +378,23 @@ def remove_hr_after_headings(md_content: str) -> str:
                 continue
             elif stripped == '---' or stripped == '***' or stripped == '___':
                 skip_next_hr = False
-                continue  # hrをスキップ
+                continue  # 直後のhrをスキップ
             else:
                 skip_next_hr = False
                 cleaned.append(line)
         else:
             if stripped.startswith('## ') or stripped.startswith('### '):
                 skip_next_hr = True
+                # 直前のhr（空行を挟んでも可）を遡って削除する
+                for j in range(len(cleaned)-1, -1, -1):
+                    prev_stripped = cleaned[j].strip()
+                    if prev_stripped == '':
+                        continue
+                    elif prev_stripped in ('---', '***', '___'):
+                        cleaned.pop(j)
+                        break
+                    else:
+                        break # hrではなかったら終了
             cleaned.append(line)
     
     return '\n'.join(cleaned)
@@ -533,6 +549,7 @@ def convert_twitter_embeds(md_content: str) -> str:
         if text_clean == url_clean or url_clean.startswith(text_clean) or text_clean.startswith(url_clean):
             # status URLのみ埋め込み対象（ツイート）
             if '/status/' in url:
+                url = url.replace('x.com', 'twitter.com')
                 return f'<blockquote class="twitter-tweet"><a href="{url}"></a></blockquote>'
         return match.group(0)
     
@@ -546,7 +563,7 @@ def convert_twitter_embeds(md_content: str) -> str:
     )
     
     def replace_bare_url(match):
-        url = match.group(1)
+        url = match.group(1).replace('x.com', 'twitter.com')
         return f'<blockquote class="twitter-tweet"><a href="{url}"></a></blockquote>'
     
     md_content = bare_url_pattern.sub(replace_bare_url, md_content)
@@ -663,8 +680,8 @@ def process_category(category_name: str, category_dir: Path, csv_path: Path):
         # Twitter/X埋め込み変換
         content = convert_twitter_embeds(content)
 
-        # h2/h3直後のhr除去
-        content = remove_hr_after_headings(content)
+        # h2/h3前後のhr除去
+        content = remove_hr_around_headings(content)
 
         # CSVギャラリー変換
         content = convert_csv_gallery(content, md_path, slug)
