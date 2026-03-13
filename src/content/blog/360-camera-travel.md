@@ -17,5 +17,3 @@ heroImage: '/images/360-camera-travel/image.png'
   </blockquote>
   <p class="text-xs text-gray-400 mt-4">※ 本動画は、Instagram（Meta Platforms, Inc.）が提供する公式の埋め込み機能を利用して、音源を含めて表示しています</p>
 </div>
-  <p class="text-xs text-gray-400 mt-4">※ 本動画は、YouTube（Google LLC）が提供する公式の埋め込み機能を利用して、音源を含めて表示しています</p>
-</div>
