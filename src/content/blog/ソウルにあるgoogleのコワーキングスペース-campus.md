@@ -2,7 +2,7 @@
 title: 'ソウルにあるGoogleのコワーキングスペース "CAMPUS"'
 category: 'life'
 slug: 'ソウルにあるgoogleのコワーキングスペース-campus'
-order: 10
+order: 18
 heroImage: '/images/ソウルにあるgoogleのコワーキングスペース-campus/Untitled.png'
 ---
 ![](/images/ソウルにあるgoogleのコワーキングスペース-campus/Untitled.png)

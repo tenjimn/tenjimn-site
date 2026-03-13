@@ -660,6 +660,11 @@ def process_category(category_name: str, category_dir: Path, csv_path: Path):
         title = extract_title(content, filename)
         print(f"  📌 タイトル: {title}")
 
+        # 手作業で調整が必要な複雑な記事は上書きしないようにスキップ
+        if title in ["2023年買って良かったもの", "公私ともに色々あった2022年を振り返る"]:
+            print(f"  ⏭️ 除外記事のためスキップします: {title}")
+            continue
+
         slug = slugify(md_path.stem)
         print(f"  🔗 スラッグ: {slug}")
 
