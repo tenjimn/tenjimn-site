@@ -2,7 +2,6 @@
 title: 'BigQuery Scriptingを使ってクエリをループ実行してみる'
 category: 'work'
 slug: 'bigquery-scriptingを使ってクエリをループ実行してみる'
-order: 13
 ---
 WHERE句にある絞り込み条件について、同じクエリを流用しながら、条件を変えつつforループのように実行したい場合。
 

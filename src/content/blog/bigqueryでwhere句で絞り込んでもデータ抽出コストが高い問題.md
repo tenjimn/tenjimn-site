@@ -2,7 +2,6 @@
 title: 'BigQueryでWHERE句で絞り込んでもデータ抽出コストが高い問題'
 category: 'work'
 slug: 'bigqueryでwhere句で絞り込んでもデータ抽出コストが高い問題'
-order: 14
 ---
 BigQueryで大きめの日別テーブルを参照する際に、なぜかめちゃくちゃコストが大きくなってしまったのでメモ。
 

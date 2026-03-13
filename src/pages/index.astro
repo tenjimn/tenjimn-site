@@ -2,15 +2,34 @@
 import Layout from '../layouts/Layout.astro';
 import '../styles/global.css';
 import { getCollection } from 'astro:content';
+import lifeOrder from '../data/lifeOrder.json';
+import workOrder from '../data/workOrder.json';
 
-// Content Collections から記事取得 → order順にソート
+// Content Collections から記事取得
 const allPosts = await getCollection('blog');
-const workArticles = allPosts
-  .filter((post) => post.data.category === 'work')
-  .sort((a, b) => (a.data.order ?? 999) - (b.data.order ?? 999));
-const lifeArticles = allPosts
-  .filter((post) => post.data.category === 'life')
-  .sort((a, b) => (a.data.order ?? 999) - (b.data.order ?? 999));
+
+// ソート関数: JSONに含まれていればそのインデックス、なければ -1 (先頭)
+const sortByOrderFile = (articles, orderList) => {
+  return articles.sort((a, b) => {
+    const indexA = orderList.indexOf(a.data.title);
+    const indexB = orderList.indexOf(b.data.title);
+    
+    // 見つからない場合は -1 にして、新しい記事ほど上に来るようにする
+    const rankA = indexA === -1 ? -1 : indexA;
+    const rankB = indexB === -1 ? -1 : indexB;
+    
+    return rankA - rankB;
+  });
+};
+
+const workArticles = sortByOrderFile(
+  allPosts.filter((post) => post.data.category === 'work'),
+  workOrder
+);
+const lifeArticles = sortByOrderFile(
+  allPosts.filter((post) => post.data.category === 'life'),
+  lifeOrder
+);
 
 // Experience データ
 const experiences = [
@@ -74,7 +93,7 @@ const experiences = [
     <div class="hero-overlay absolute inset-0"></div>
     <div class="text-center max-w-2xl relative z-10">
       <h1 class="text-4xl md:text-6xl lg:text-7xl font-light tracking-[-0.02em] leading-[1.1] animate-fade-in-up" style="font-family: 'Cormorant Garamond', serif;">
-        tenjimn
+        Hi, I'm tenjimn
       </h1>
     </div>
     <div class="absolute bottom-8 animate-bounce-slow z-10">

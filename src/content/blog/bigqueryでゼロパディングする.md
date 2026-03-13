@@ -2,7 +2,6 @@
 title: 'BigQueryでゼロパディングする'
 category: 'work'
 slug: 'bigqueryでゼロパディングする'
-order: 18
 ---
 ゼロパディング、つまり
 

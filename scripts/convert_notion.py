@@ -578,81 +578,30 @@ def convert_twitter_embeds(md_content: str) -> str:
     return md_content
 
 
-def create_frontmatter(title: str, category: str, slug: str, order: int, hero_image: Optional[str] = None) -> str:
+def create_frontmatter(title: str, category: str, slug: str, hero_image: Optional[str] = None) -> str:
     """Astro用のfrontmatterを生成。"""
     safe_title = title.replace("'", "''")
     fm = f"""---
 title: '{safe_title}'
 category: '{category}'
-slug: '{slug}'
-order: {order}"""
+slug: '{slug}'"""
     if hero_image:
         fm += f"\nheroImage: '{hero_image}'"
     fm += "\n---\n"
     return fm
 
 
-def load_csv_order(csv_path: Path) -> list:
-    """CSVファイルから記事タイトルの順序を読み取る。"""
-    titles = []
-    if csv_path.exists():
-        with open(csv_path, 'r', encoding='utf-8') as f:
-            reader = csv.reader(f)
-            next(reader)  # ヘッダーをスキップ
-            for row in reader:
-                if row:
-                    titles.append(row[0].strip())
-    return titles
 
 
-def match_md_to_order(md_path: Path, order_titles: list) -> int:
-    """MDファイルのタイトルをCSV順序リストと照合し、順番を返す。"""
-    with open(md_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-
-    title = extract_title(content, md_path.name)
-
-    # 完全一致で探す
-    for i, csv_title in enumerate(order_titles):
-        if csv_title == title:
-            return i + 1
-
-    # 部分一致で探す（Notionの微妙な変換差を吸収）
-    title_normalized = title.lower().strip()
-    for i, csv_title in enumerate(order_titles):
-        csv_normalized = csv_title.lower().strip()
-        # 引用符を除去して比較
-        csv_clean = csv_normalized.replace('"', '').replace('"', '').replace('"', '')
-        title_clean = title_normalized.replace('"', '').replace('"', '').replace('"', '')
-        if csv_clean == title_clean or csv_clean in title_clean or title_clean in csv_clean:
-            return i + 1
-
-    # 見つからなかった場合は大きい数字（末尾に配置）
-    print(f"  ⚠️ CSV内に順番が見つかりません: {title}")
-    return 999
-
-
-def process_category(category_name: str, category_dir: Path, csv_path: Path):
+def process_category(category_name: str, category_dir: Path):
     """カテゴリ（Work/Life）ごとの記事を処理。"""
-    # CSVから記事の順番を読み取り
-    order_titles = load_csv_order(csv_path)
-    print(f"  📋 CSV順序: {len(order_titles)} 件")
-
     md_files = list(category_dir.glob('*.md'))
-
-    # CSVの順番に基づいてソート
-    md_files_with_order = []
-    for md_path in md_files:
-        order = match_md_to_order(md_path, order_titles)
-        md_files_with_order.append((order, md_path))
-
-    md_files_with_order.sort(key=lambda x: x[0])
 
     count = 0
 
-    for order, md_path in md_files_with_order:
+    for md_path in md_files:
         filename = md_path.name
-        print(f"\n📄 処理中: {filename} (order: {order})")
+        print(f"\n📄 処理中: {filename}")
 
         with open(md_path, 'r', encoding='utf-8') as f:
             content = f.read()
@@ -704,11 +653,11 @@ def process_category(category_name: str, category_dir: Path, csv_path: Path):
         # 最初の画像をheroImageとして取得（変換後のパスから）
         first_img_match = re.search(r'!\[[^\]]*\]\((/images/[^)]+)\)', content)
         hero_image = first_img_match.group(1) if first_img_match else None
-        if hero_image:
-            print(f"  🖼️  ヒーロー画像: {hero_image}")
+        if "Instagram" in content:
+            content = convert_instagram_embeds(content)
 
         # frontmatter付与
-        frontmatter = create_frontmatter(title, category_name, slug, order, hero_image)
+        frontmatter = create_frontmatter(title, category_name, slug, hero_image)
         final_content = frontmatter + content
 
         # 出力
@@ -735,22 +684,18 @@ def main():
     total = 0
 
     # Work カテゴリ
-    work_dir = NOTION_EXPORT / "Work"
-    work_csv = NOTION_EXPORT / "Work 4be3bfcd233b42b38bc1c46dfb2a83a2.csv"
     if work_dir.exists():
         print("\n" + "─" * 40)
         print("📁 Work カテゴリ")
         print("─" * 40)
-        total += process_category("work", work_dir, work_csv)
+        total += process_category("work", work_dir)
 
     # Life カテゴリ
-    life_dir = NOTION_EXPORT / "Life"
-    life_csv = NOTION_EXPORT / "Life 41e3d9aa8ea140dea6cd8f1be2e88778.csv"
     if life_dir.exists():
         print("\n" + "─" * 40)
         print("📁 Life カテゴリ")
         print("─" * 40)
-        total += process_category("life", life_dir, life_csv)
+        total += process_category("life", life_dir)
 
     print("\n" + "=" * 60)
     print(f"✨ 変換完了！ 合計 {total} 件の記事を変換しました")

@@ -2,7 +2,6 @@
 title: 'BigQueryでサブクエリが多い・クエリが複雑でリソース不足時の対策'
 category: 'work'
 slug: 'bigqueryでサブクエリが多い・クエリが複雑でリソース不足時の対策'
-order: 19
 ---
 GoogleのBigqueryでデータ分析をしていた際に、困ったので備忘録。
 

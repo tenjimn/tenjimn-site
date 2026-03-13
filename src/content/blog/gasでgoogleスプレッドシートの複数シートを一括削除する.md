@@ -2,7 +2,6 @@
 title: 'GASでGoogleスプレッドシートの複数シートを一括削除する'
 category: 'work'
 slug: 'gasでgoogleスプレッドシートの複数シートを一括削除する'
-order: 12
 heroImage: '/images/gasでgoogleスプレッドシートの複数シートを一括削除する/Untitled.png'
 ---
 GASを用いる。

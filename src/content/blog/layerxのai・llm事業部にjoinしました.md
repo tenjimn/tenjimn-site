@@ -2,7 +2,6 @@
 title: 'LayerXのAI・LLM事業部にjoinしました'
 category: 'work'
 slug: 'layerxのai・llm事業部にjoinしました'
-order: 1
 heroImage: '/images/layerxのai・llm事業部にjoinしました/IMG_9878.jpeg'
 ---
 ![IMG_9878.jpeg](/images/layerxのai・llm事業部にjoinしました/IMG_9878.jpeg)
