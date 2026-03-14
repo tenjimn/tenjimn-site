@@ -15,7 +15,12 @@ const { post } = Astro.props;
 const { Content } = await render(post);
 ---
 
-<Layout title={`${post.data.title} | tenjimn`} description={post.data.title}>
+<Layout 
+  title={`${post.data.title} | tenjimn`} 
+  description={post.data.title}
+  image={post.data.heroImage}
+  ogType="article"
+>
 
   <!-- ====== Header ====== -->
   <header class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-[var(--color-border)]">

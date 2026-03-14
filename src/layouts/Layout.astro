@@ -2,12 +2,20 @@
 interface Props {
   title?: string;
   description?: string;
+  image?: string;
+  ogType?: 'website' | 'article';
 }
 
 const {
   title = 'tenjimn.com',
   description = 'Work & Life — tenjimn',
+  image = '/images/hero-bg.jpeg',
+  ogType = 'website',
 } = Astro.props;
+
+const siteUrl = Astro.site ? Astro.site.origin : 'https://tenjimn.com';
+const canonicalURL = new URL(Astro.url.pathname, siteUrl);
+const imageURL = new URL(image, siteUrl);
 ---
 
 <!doctype html>
@@ -26,6 +34,21 @@ const {
       rel="stylesheet"
     />
     <meta name="generator" content={Astro.generator} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={imageURL} />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalURL} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={imageURL} />
+
     <title>{title}</title>
   </head>
   <body>
