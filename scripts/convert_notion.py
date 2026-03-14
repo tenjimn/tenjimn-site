@@ -186,11 +186,19 @@ def clean_notion_properties(md_content: str) -> str:
 
 
 def bold_headings(md_content: str) -> str:
-    """h2 (## ) と h3 (### ) を太字 (<strong>) で囲む。"""
-    # h2 の変換: ## タイトル -> ## <strong>タイトル</strong>
-    md_content = re.sub(r'^##\s+(.+)$', r'## <strong>\1</strong>', md_content, flags=re.MULTILINE)
-    # h3 の変換: ### タイトル -> ### <strong>タイトル</strong>
-    md_content = re.sub(r'^###\s+(.+)$', r'### <strong>\1</strong>', md_content, flags=re.MULTILINE)
+    """h2 (## ) と h3 (### ) を太字 (<strong>) で囲む。
+    すでに全体が太字（** もしくは <strong>）の場合は二重にならないようにする。
+    """
+    def wrap_bold(match):
+        level = match.group(1)
+        text = match.group(2).strip()
+        # すでに全体が <strong> もしくは ** で囲まれている場合はそのまま
+        if (text.startswith('<strong>') and text.endswith('</strong>')) or \
+           (text.startswith('**') and text.endswith('**')):
+            return f'{level} {text}'
+        return f'{level} <strong>{text}</strong>'
+
+    md_content = re.sub(r'^(##|###)\s+(.+)$', wrap_bold, md_content, flags=re.MULTILINE)
     return md_content
 
 
