@@ -30,4 +30,11 @@
     background-color: #000;
     color: #fff;
   }
+
+  /* Podcast Embed */
+  .podcast-embed {
+    margin: 1.5rem 0;
+    width: 100%;
+    line-height: 0;
+  }
 }

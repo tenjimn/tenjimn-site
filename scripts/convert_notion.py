@@ -629,6 +629,67 @@ def convert_twitter_embeds(md_content: str) -> str:
     
     return md_content
 
+def convert_podcast_embeds(md_content: str) -> str:
+    """Spotify/Anchorのリンクを埋め込みプレイヤーに変換する。"""
+    # アンカー/SpotifyのURLパターン (Markdownリンク形式)
+    # [タイトル](https://anchor.fm/...) or [タイトル](https://open.spotify.com/...)
+    podcast_link_pattern = re.compile(
+        r'\[([^\]]+)\]\((https?://(?:anchor\.fm|podcasters\.spotify\.com|open\.spotify\.com|creators\.spotify\.com)/[^)]+)\)',
+        re.IGNORECASE
+    )
+    
+    def replace_podcast_link(match):
+        title = match.group(1)
+        url = match.group(2)
+        
+        # 埋め込み用URLへの変換
+        embed_url = url
+        if 'anchor.fm' in url or 'podcasters.spotify.com' in url or 'creators.spotify.com' in url:
+            # 各種ドメインの /episodes/ -> /embed/episodes/ への変換
+            if '/episodes/' in url:
+                embed_url = url.replace('/episodes/', '/embed/episodes/')
+        elif 'open.spotify.com' in url:
+            embed_url = url.replace('open.spotify.com/', 'open.spotify.com/embed/')
+
+        return f'<div class="podcast-embed"><iframe src="{embed_url}" width="100%" height="102px" frameborder="0" scrolling="no" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>'
+
+    md_content = podcast_link_pattern.sub(replace_podcast_link, md_content)
+    
+    # URLのみの行も対応
+    bare_podcast_pattern = re.compile(
+        r'^(https?://(?:anchor\.fm|podcasters\.spotify\.com|open\.spotify\.com|creators\.spotify\.com)/[^\s]+)\s*$',
+        re.MULTILINE | re.IGNORECASE
+    )
+    
+    def replace_bare_podcast(match):
+        url = match.group(1)
+        embed_url = url
+        if 'anchor.fm' in url or 'podcasters.spotify.com' in url or 'creators.spotify.com' in url:
+            if '/episodes/' in url:
+                embed_url = url.replace('/episodes/', '/embed/episodes/')
+        elif 'open.spotify.com' in url:
+            embed_url = url.replace('open.spotify.com/', 'open.spotify.com/embed/')
+            
+        return f'<div class="podcast-embed"><iframe src="{embed_url}" width="100%" height="102px" frameborder="0" scrolling="no" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>'
+
+    md_content = bare_podcast_pattern.sub(replace_bare_podcast, md_content)
+    
+    return md_content
+
+
+def convert_instagram_embeds(md_content: str) -> str:
+    """Instagramのリンクを埋め込みに変換（既存の呼び出しに対応）"""
+    # 簡易実装
+    insta_pattern = re.compile(
+        r'\[([^\]]+)\]\((https?://(?:www\.)?instagram\.com/(?:p|reels|reel)/([^/)]+)/?[^)]*)\)',
+        re.IGNORECASE
+    )
+    def replace_insta(match):
+        url = match.group(2)
+        return f'<blockquote class="instagram-media" data-instgrm-permalink="{url}"></blockquote>'
+    
+    return insta_pattern.sub(replace_insta, md_content)
+
 
 def create_frontmatter(title: str, category: str, slug: str, hero_image: Optional[str] = None) -> str:
     """Astro用のfrontmatterを生成。"""
@@ -692,6 +753,9 @@ def process_category(category_name: str, category_dir: Path):
 
         # Twitter/X埋め込み変換
         content = convert_twitter_embeds(content)
+
+        # Podcast埋め込み変換
+        content = convert_podcast_embeds(content)
 
         # h2/h3前後のhr除去
         content = remove_hr_around_headings(content)
