@@ -25,6 +25,10 @@ NOTION_EXPORT = PROJECT_ROOT / "notion_export" / "Article"
 OUTPUT_BLOG = PROJECT_ROOT / "src" / "content" / "blog"
 OUTPUT_IMAGES = PROJECT_ROOT / "public" / "images"
 
+# 既存のカテゴリディレクトリ
+work_dir = NOTION_EXPORT / "Work"
+life_dir = NOTION_EXPORT / "Life"
+
 
 def slugify(text: str) -> str:
     """日本語対応のスラッグ生成。
@@ -150,6 +154,44 @@ def remove_notion_title(md_content: str) -> str:
             lines.pop(0)
 
     return '\n'.join(lines)
+
+
+    return md_content
+
+
+def clean_notion_properties(md_content: str) -> str:
+    """Notionのプロパティ行 (Status: Doing等) を除去する。"""
+    # 行頭から始まる "Property: Value" のパターン（プロパティが並んでいる箇所）を想定
+    lines = md_content.split('\n')
+    cleaned = []
+    # 記事冒頭のプロパティ（空行を挟むまで）を対象にする
+    in_properties = True
+    for line in lines:
+        stripped = line.strip()
+        if in_properties:
+            if stripped == "":
+                cleaned.append(line)
+                in_properties = False # 最初の空行でプロパティエリア終了
+                continue
+            # プロパティっぽい行（キー: 値）をスキップ
+            if re.match(r'^[A-Za-z]+: .+$', stripped):
+                continue
+            else:
+                # プロパティっぽくない行が来たらプロパティエリア終了
+                in_properties = False
+                cleaned.append(line)
+        else:
+            cleaned.append(line)
+    return '\n'.join(cleaned)
+
+
+def bold_headings(md_content: str) -> str:
+    """h2 (## ) と h3 (### ) を太字 (<strong>) で囲む。"""
+    # h2 の変換: ## タイトル -> ## <strong>タイトル</strong>
+    md_content = re.sub(r'^##\s+(.+)$', r'## <strong>\1</strong>', md_content, flags=re.MULTILINE)
+    # h3 の変換: ### タイトル -> ### <strong>タイトル</strong>
+    md_content = re.sub(r'^###\s+(.+)$', r'### <strong>\1</strong>', md_content, flags=re.MULTILINE)
+    return md_content
 
 
 def convert_notion_html(md_content: str) -> str:
@@ -284,21 +326,19 @@ def remove_outline_blocks(md_content: str) -> str:
 def fix_bold_fullwidth_chars(md_content: str) -> str:
     """Notionエクスポートで壊れた太字パターンを包括的に修正する。
     
-    問題の根本原因: Notionから出力されたMarkdownで、全角文字（括弧、カギ括弧等）の
-    直後にある**がMarkdownパーサーに認識されないため、<strong>タグへの変換が
-    部分的にしか行われず、**text<strong> や </strong>text** といった壊れたパターンが発生する。
-    
-    この関数は以下のパターンを全て修正する:
-    1. **text<strong> → <strong>text</strong>  (開始**あり、閉じが<strong>に化けている)
-    2. </strong>text** → <strong>text</strong>  (開始が</strong>に化けている、閉じ**あり)
-    3. ## **heading<strong> → ## <strong>heading</strong>  (見出し内の太字1)
-    4. ## </strong>heading** → ## <strong>heading</strong>  (見出し内の太字2)
-    5. ***italic*<strong> → <strong><em>italic</em></strong>  (斜体+太字の壊れ)
-    6. </strong>*italic*** → <strong><em>italic</em></strong>  (斜体+太字の壊れ2)
-    7. 通常の全角括弧含み太字: **text（desc）** → <strong>text（desc）</strong>
-    
-    リンク [**text**](url) 内の太字は変換しない。
+    コードブロック（`...`）内の内容は変換対象から除外する。
     """
+    # Step 0: コードブロックをプレースホルダーに置換して保護
+    code_blocks = []
+    code_pattern = re.compile(r'(`[^`\n]+`)')
+    
+    def save_code(match):
+        idx = len(code_blocks)
+        code_blocks.append(match.group(0))
+        return f'__CODE_PLACEHOLDER_{idx}__'
+    
+    protected = code_pattern.sub(save_code, md_content)
+
     # Step 1: リンクパターンを一旦プレースホルダーに置換して保護
     links = []
     link_pattern = re.compile(r'\[([^\]]*)\]\(([^)]+)\)')
@@ -308,7 +348,7 @@ def fix_bold_fullwidth_chars(md_content: str) -> str:
         links.append(match.group(0))
         return f'__LINK_PLACEHOLDER_{idx}__'
     
-    protected = link_pattern.sub(save_link, md_content)
+    protected = link_pattern.sub(save_link, protected)
     
     # Step 2: 壊れたパターンを修正（全て行内でのみマッチさせる）
     
@@ -355,9 +395,13 @@ def fix_bold_fullwidth_chars(md_content: str) -> str:
     any_bold = re.compile(r'\*\*([^*<>\n]+)\*\*')
     protected = any_bold.sub(r'<strong>\1</strong>', protected)
     
-    # Step 3: プレースホルダーを元のリンクに復元
+    # Step 3: リンクプレースホルダーを戻す
     for i, link in enumerate(links):
         protected = protected.replace(f'__LINK_PLACEHOLDER_{i}__', link)
+    
+    # Step 4: コードブロックプレースホルダーを戻す
+    for i, code in enumerate(code_blocks):
+        protected = protected.replace(f'__CODE_PLACEHOLDER_{i}__', code)
     
     return protected
 
