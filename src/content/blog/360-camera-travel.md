@@ -1,7 +1,7 @@
 ---
 title: 'モンゴル・ミャンマー・ニュージーランド・ラダックを360度カメラで巡る'
 category: 'life'
-slug: '360-camera-travel'
+slug: '360-camera-travel-log'
 heroImage: '/images/360-camera-travel/image.png'
 ---
 ![モンゴル・ミャンマー・ニュージーランド・ラダック](/images/360-camera-travel/image.png)

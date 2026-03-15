@@ -1,7 +1,7 @@
 ---
 title: 'BigQueryで指定期間内の各曜日数を計算する'
 category: 'work'
-slug: 'bigqueryで指定期間内の各曜日数を計算する'
+slug: 'bq-calculate-weekdays'
 ---
 先日BigQueryにおいて、カレンダーマスタなど日付別のデータを使用せず、指定期間内の各曜日数を計算する必要があったので、備忘録として残しておく。
 

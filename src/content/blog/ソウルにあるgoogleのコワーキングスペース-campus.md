@@ -1,7 +1,7 @@
 ---
 title: 'ソウルにあるGoogleのコワーキングスペース "CAMPUS"'
 category: 'life'
-slug: 'ソウルにあるgoogleのコワーキングスペース-campus'
+slug: 'google-campus-seoul'
 heroImage: '/images/ソウルにあるgoogleのコワーキングスペース-campus/Untitled.png'
 ---
 ![](/images/ソウルにあるgoogleのコワーキングスペース-campus/Untitled.png)

@@ -1,7 +1,7 @@
 ---
 title: 'GASで画像をURLからGoogleドライブにスクレイピング保存'
 category: 'work'
-slug: 'gasで画像をurlからgoogleドライブにスクレイピング保存'
+slug: 'gas-image-scraping'
 heroImage: '/images/gasで画像をurlからgoogleドライブにスクレイピング保存/Untitled.png'
 ---
 ※画像・商品参照元：FERFETCH　[https://www.farfetch.com/jp/](https://www.farfetch.com/jp/)

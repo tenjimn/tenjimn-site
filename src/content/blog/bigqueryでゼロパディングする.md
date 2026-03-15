@@ -1,7 +1,7 @@
 ---
 title: 'BigQueryでゼロパディングする'
 category: 'work'
-slug: 'bigqueryでゼロパディングする'
+slug: 'bq-zero-padding'
 ---
 ゼロパディング、つまり
 

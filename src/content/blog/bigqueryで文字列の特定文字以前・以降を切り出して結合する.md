@@ -1,7 +1,7 @@
 ---
 title: 'BigQueryで文字列の特定文字以前・以降を切り出して結合する'
 category: 'work'
-slug: 'bigqueryで文字列の特定文字以前・以降を切り出して結合する'
+slug: 'bq-string-manipulation'
 ---
 汎用性が高そうなのでメモ。
 

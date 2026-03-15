@@ -1,7 +1,7 @@
 ---
 title: 'Googleドライブの複数画像を結合して一枚の画像で保存し直す'
 category: 'work'
-slug: 'googleドライブの複数画像を結合して一枚の画像で保存し直す'
+slug: 'combine-google-drive-images'
 heroImage: '/images/googleドライブの複数画像を結合して一枚の画像で保存し直す/Untitled.png'
 ---
 ![](/images/googleドライブの複数画像を結合して一枚の画像で保存し直す/Untitled.png)

@@ -1,7 +1,7 @@
 ---
 title: 'BigQueryのテーブルからスキーマ情報をデータ型と同時に取得する'
 category: 'work'
-slug: 'bigqueryのテーブルからスキーマ情報をデータ型と同時に取得する'
+slug: 'bq-schema-export'
 ---
 Pythonで作ったデータセットをBigQueryに上げる際に、デフォルトだとデータ型が合わない問題が発生した。
 

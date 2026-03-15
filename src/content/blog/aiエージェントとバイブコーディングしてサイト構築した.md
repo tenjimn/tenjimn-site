@@ -1,7 +1,7 @@
 ---
 title: 'AIエージェントとバイブコーディングしてサイト構築した'
 category: 'work'
-slug: 'aiエージェントとバイブコーディングしてサイト構築した'
+slug: 'vibe-coding-ai-agent'
 heroImage: '/images/aiエージェントとバイブコーディングしてサイト構築した/IMG_5247_Original.jpeg'
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: '青蔵鉄道でチベットを訪問してエベレストを望む'
 category: 'life'
-slug: 'tibet-everest-railway'
+slug: 'tibet-everest-railway-trip'
 heroImage: '/images/tibet-everest-railway/image.png'
 ---
 ![青蔵鉄道でチベットを訪問してエベレストを望む](/images/tibet-everest-railway/image.png)

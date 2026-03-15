@@ -23,7 +23,35 @@ from urllib.parse import unquote, quote
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 NOTION_EXPORT = PROJECT_ROOT / "notion_export" / "Article"
 OUTPUT_BLOG = PROJECT_ROOT / "src" / "content" / "blog"
+OUTPUT_BLOG = PROJECT_ROOT / "src" / "content" / "blog"
 OUTPUT_IMAGES = PROJECT_ROOT / "public" / "images"
+
+def get_existing_slug(title: str) -> Optional[str]:
+    """既存のMarkdownファイルからスラッグを読み取る。"""
+    # ファイル名を特定 (タイトルをslugifyしたもの)
+    filename_slug = slugify(title)
+    existing_path = OUTPUT_BLOG / f"{filename_slug}.md"
+    
+    if existing_path.exists():
+        with open(existing_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+            # frontmatterからslugを抽出
+            match = re.search(r"^slug:\s*['\"]?(.*?)['\"]?$", content, re.MULTILINE)
+            if match:
+                return match.group(1).strip()
+    return None
+
+def get_slug_for_article(title: str) -> str:
+    """既存のファイルがあればそのスラッグを、なければ新規生成する。"""
+    existing_slug = get_existing_slug(title)
+    if existing_slug:
+        print(f"  ♻️  既存のスラッグを再利用: {existing_slug}")
+        return existing_slug
+    
+    # 新規生成
+    new_slug = slugify(title)
+    print(f"  🆕 新規スラッグ生成: {new_slug}")
+    return new_slug
 
 # 既存のカテゴリディレクトリ
 work_dir = NOTION_EXPORT / "Work"
@@ -154,9 +182,6 @@ def remove_notion_title(md_content: str) -> str:
             lines.pop(0)
 
     return '\n'.join(lines)
-
-
-    return md_content
 
 
 def clean_notion_properties(md_content: str) -> str:
@@ -722,13 +747,14 @@ def process_category(category_name: str, category_dir: Path):
         title = extract_title(content, filename)
         print(f"  📌 タイトル: {title}")
 
+        # スラッグを決定 (既存ファイルから引き継ぎ or 新規作成)
+        slug = get_slug_for_article(title)
+        print(f"  🔗 スラッグ: {slug}")
+
         # 手作業で調整が必要な複雑な記事は上書きしないようにスキップ
         if title in ["2023年買って良かったもの", "公私ともに色々あった2022年を振り返る"]:
             print(f"  ⏭️ 除外記事のためスキップします: {title}")
             continue
-
-        slug = slugify(md_path.stem)
-        print(f"  🔗 スラッグ: {slug}")
 
         # タイトル行の除去
         content = remove_notion_title(content)
@@ -776,13 +802,15 @@ def process_category(category_name: str, category_dir: Path):
         frontmatter = create_frontmatter(title, category_name, slug, hero_image)
         final_content = frontmatter + content
 
-        # 出力
-        output_path = OUTPUT_BLOG / f"{slug}.md"
+        # 出力: ファイル名は識別しやすいように元のタイトルのままにする
+        # slugifyしたタイトルをファイル名に使う（ハッシュ除去済み）
+        filename_slug = slugify(title)
+        output_path = OUTPUT_BLOG / f"{filename_slug}.md"
         output_path.parent.mkdir(parents=True, exist_ok=True)
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(final_content)
 
-        print(f"  ✅ 保存: {output_path.relative_to(PROJECT_ROOT)}")
+        print(f"  ✅ 保存: {output_path.relative_to(PROJECT_ROOT)} (URL: /blog/{slug})")
         count += 1
 
     return count

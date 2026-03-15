@@ -1,7 +1,7 @@
 ---
 title: 'SQLで特定曜日始まり週単位の集計をする'
 category: 'work'
-slug: 'sqlで特定曜日始まり週単位の集計をする'
+slug: 'sql-weekly-aggregation'
 ---
 ISOWEEKのような週番号単位の集計ではなく、例えば水曜日〜翌火曜日までの7日間を1週間単位として集計をしたい場合。
 

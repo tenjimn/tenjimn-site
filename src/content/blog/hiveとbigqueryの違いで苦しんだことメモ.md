@@ -1,7 +1,7 @@
 ---
 title: 'HiveとBigQueryの違いで苦しんだことメモ'
 category: 'work'
-slug: 'hiveとbigqueryの違いで苦しんだことメモ'
+slug: 'hive-vs-bigquery'
 ---
 最近はBigQueryでばかりクエリを書いていたので、HiveQLで書く必要性に駆られたときに、その方言の違いにだいぶ苦戦した。
 
