@@ -11,6 +11,7 @@ Notionの書き出しデータをAstroのブログ形式に変換するスクリ
 """
 
 import csv
+import filecmp
 import os
 import re
 import shutil
@@ -143,23 +144,33 @@ def process_images(md_content: str, md_path: Path, article_slug: str) -> str:
         img_filename = img_source.name
         dest_path = article_img_dir / img_filename
 
-        shutil.copy2(img_source, dest_path)
+        # すでに同じファイルが存在する場合はコピーをスキップ
+        if not (dest_path.exists() and filecmp.cmp(img_source, dest_path, shallow=True)):
+            shutil.copy2(img_source, dest_path)
 
         # HEIC→JPEG変換（ブラウザはHEICを表示できない）
         if img_filename.lower().endswith('.heic'):
             jpeg_filename = Path(img_filename).stem + '.jpeg'
             jpeg_dest = article_img_dir / jpeg_filename
-            try:
-                import subprocess
-                subprocess.run(
-                    ['sips', '-s', 'format', 'jpeg', str(dest_path), '--out', str(jpeg_dest)],
-                    capture_output=True, check=True
-                )
-                dest_path.unlink()  # HEICファイルを削除
+            
+            # すでにJPEGが存在し、元ファイルより新しい場合は変換をスキップ
+            if jpeg_dest.exists() and jpeg_dest.stat().st_mtime >= img_source.stat().st_mtime:
                 img_filename = jpeg_filename
-                print(f"  🔄 HEIC→JPEG変換: {img_source.name} → {jpeg_filename}")
-            except Exception as e:
-                print(f"  ⚠️ HEIC変換失敗: {e}")
+            else:
+                try:
+                    import subprocess
+                    subprocess.run(
+                        ['sips', '-s', 'format', 'jpeg', str(dest_path), '--out', str(jpeg_dest)],
+                        capture_output=True, check=True
+                    )
+                    img_filename = jpeg_filename
+                    print(f"  🔄 HEIC→JPEG変換: {img_source.name} → {jpeg_filename}")
+                except Exception as e:
+                    print(f"  ⚠️ HEIC変換失敗: {e}")
+            
+            # 元のHEICファイルがコピー先に残っていたら削除
+            if dest_path.exists() and dest_path.suffix.lower() == '.heic':
+                dest_path.unlink()
 
         new_path = f"/images/{article_slug}/{quote(img_filename)}"
         return f'![{alt_text}]({new_path})'
@@ -559,23 +570,32 @@ def convert_csv_gallery(md_content: str, md_path: Path, article_slug: str) -> st
                 dest_path = article_img_dir / img_filename
                 
                 if img_src_path != dest_path:
-                    shutil.copy2(img_src_path, dest_path)
+                    # すでに同じファイルが存在する場合はコピーをスキップ
+                    if not (dest_path.exists() and filecmp.cmp(img_src_path, dest_path, shallow=True)):
+                        shutil.copy2(img_src_path, dest_path)
                 
                 # HEIC→JPEG変換
                 if img_filename.lower().endswith('.heic'):
                     jpeg_filename = Path(img_filename).stem + '.jpeg'
                     jpeg_dest = article_img_dir / jpeg_filename
-                    try:
-                        import subprocess
-                        subprocess.run(
-                            ['sips', '-s', 'format', 'jpeg', str(dest_path), '--out', str(jpeg_dest)],
-                            capture_output=True, check=True
-                        )
-                        dest_path.unlink()  # HEICファイルを削除
+                    
+                    if jpeg_dest.exists() and jpeg_dest.stat().st_mtime >= img_src_path.stat().st_mtime:
                         img_filename = jpeg_filename
-                        print(f"  🔄 ギャラリー画像HEIC→JPEG変換: {img_src_path.name} → {jpeg_filename}")
-                    except Exception as e:
-                        print(f"  ⚠️ ギャラリー画像HEIC変換失敗: {e}")
+                    else:
+                        try:
+                            import subprocess
+                            subprocess.run(
+                                ['sips', '-s', 'format', 'jpeg', str(dest_path), '--out', str(jpeg_dest)],
+                                capture_output=True, check=True
+                            )
+                            img_filename = jpeg_filename
+                            print(f"  🔄 ギャラリー画像HEIC→JPEG変換: {img_src_path.name} → {jpeg_filename}")
+                        except Exception as e:
+                            print(f"  ⚠️ ギャラリー画像HEIC変換失敗: {e}")
+                    
+                    # コピー先のHEICファイルがあれば削除
+                    if dest_path.exists() and dest_path.suffix.lower() == '.heic':
+                        dest_path.unlink()
                 
                 new_path = f"/images/{article_slug}/{quote(img_filename)}"
                 items_html.append(f'<div class="gallery-item"><img src="{new_path}" alt="{caption}" loading="lazy" /><p class="gallery-caption">{caption}</p></div>')
@@ -807,10 +827,20 @@ def process_category(category_name: str, category_dir: Path):
         filename_slug = slugify(title)
         output_path = OUTPUT_BLOG / f"{filename_slug}.md"
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write(final_content)
-
-        print(f"  ✅ 保存: {output_path.relative_to(PROJECT_ROOT)} (URL: /blog/{slug})")
+        
+        # 内容が変更されている場合のみ、または新規の場合のみ書き出す
+        should_write = True
+        if output_path.exists():
+            with open(output_path, 'r', encoding='utf-8') as f:
+                if f.read() == final_content:
+                    should_write = False
+        
+        if should_write:
+            with open(output_path, 'w', encoding='utf-8') as f:
+                f.write(final_content)
+            print(f"  ✅ 保存: {output_path.relative_to(PROJECT_ROOT)} (URL: /blog/{slug})")
+        else:
+            print(f"  ⏭️ 内容に変更なし: {output_path.relative_to(PROJECT_ROOT)}")
         count += 1
 
     return count
