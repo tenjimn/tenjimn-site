@@ -6,25 +6,29 @@
 
 ```
 tenjimn-site/
+├── inbox/                       # 新規記事の投入先（ZIPを置く場所）
+│   ├── work/                    # Work記事のZIPを置く
+│   ├── life/                    # Life記事のZIPを置く
+│   └── README.md                # 使い方の説明
 ├── src/
-│   ├── content/blog/        # 記事MD（変換スクリプトが生成）
+│   ├── content/blog/            # 記事MD（変換スクリプトが生成）
 │   ├── pages/
-│   │   ├── index.astro      # トップページ
-│   │   └── blog/[slug].astro # 記事ページ
-│   ├── layouts/Layout.astro  # 共通レイアウト
+│   │   ├── index.astro          # トップページ
+│   │   └── blog/[slug].astro    # 記事ページ
+│   ├── layouts/Layout.astro     # 共通レイアウト
 │   └── styles/global.css
 ├── public/
-│   ├── images/              # 記事画像（変換スクリプトが配置）
-│   └── favicon.svg          # ヒツジアイコン
-├── notion_export/           # Notionエクスポートデータ（git管理外）
+│   ├── images/                  # 記事画像（変換スクリプトが配置）
+│   └── favicon.svg              # ヒツジアイコン
+├── notion_export/               # 処理済みアーカイブ（git管理外）
 │   └── Article/
-│       ├── Work/            # Work記事のMD + 画像
-│       ├── Life/            # Life記事のMD + 画像
-│       ├── Work *.csv       # Work記事の順序CSV
-│       └── Life *.csv       # Life記事の順序CSV
+│       ├── Work/                # 処理済みWork記事のZIP・MD・画像
+│       └── Life/                # 処理済みLife記事のZIP・MD・画像
 ├── scripts/
-│   └── convert_notion.py    # 変換スクリプト（git管理外）
-└── AGENTS.md                # このファイル
+│   ├── add_from_zip.py          # 記事追加スクリプト（メイン）
+│   ├── convert_notion.py        # 変換ロジックライブラリ / フルリビルド
+│   └── check_dead_tweets.py     # リンク切れツイート監視
+└── AGENTS.md                    # このファイル
 ```
 
 ## 記事の追加・更新ワークフロー
@@ -34,26 +38,33 @@ tenjimn-site/
 - 画像はNotion内にアップロード
 
 ### 2. Notionからエクスポート
-- 「Markdown & CSV」形式でエクスポート
-- ダウンロードしたZIPを展開し `notion_export/Article/` 配下に配置
-- Work/Life 各フォルダと、順序を決めるCSVファイルが含まれる
+- 「Markdown & CSV」形式でエクスポート（ZIPがダウンロードされる）
 
-### 3. 変換スクリプトを実行
+### 3. ZIPを inbox/ に配置
+- ダウンロードしたZIPファイルをカテゴリに応じたフォルダに置く
+  - `inbox/work/` — Work カテゴリの記事
+  - `inbox/life/` — Life カテゴリの記事
+- ZIPは展開不要。そのまま置くだけでOK
+- 複数のZIPを同時に置いて一括処理可能
+
+### 4. 変換スクリプトを実行
 ```bash
-python3 scripts/convert_notion.py
+python3 scripts/add_from_zip.py
 ```
 これにより以下が自動実行される：
-- `notion_export/Article/Work/*.md` → `src/content/blog/` へ変換
-- `notion_export/Article/Life/*.md` → `src/content/blog/` へ変換
+- inbox/ 内の全ZIPを検出・展開
+- MDファイルの変換（11種類の変換処理）
+- 変換結果を `src/content/blog/` に保存
 - 画像を `public/images/{slug}/` へコピー
 - HEIC画像をJPEGに自動変換（macOSのsipsコマンド使用）
+- 処理済みZIPを `notion_export/Article/{Work|Life}/` にアーカイブ移動
 
-### 4. ビルド・確認・デプロイ
+### 5. ビルド・確認・デプロイ
 ```bash
 npm run dev          # ローカル確認
 npx astro build      # ビルド確認
-git add -A && git commit -m "add new article" && git push origin main
 ```
+- git commit / git push はユーザーがエディタ上で行う
 - Cloudflare Pages が自動デプロイ
 
 ## 変換スクリプトの処理内容
@@ -114,3 +125,72 @@ python3 scripts/check_dead_tweets.py
 - **箇条書き**: `list-style-type: disc`（Tailwind CSSのリセットで消えるため明示指定）
 - **Contact SNS**: インラインSVGアイコン（X/GitHub/Instagram/Facebook）
 - **About me背景**: opacity 0.45、grayscale 40%
+
+## 記事追加の実行仕様（AIエージェント向け）
+
+### スクリプト一覧と使い分け
+
+| やりたいこと | 実行するスクリプト | コマンド |
+|---|---|---|
+| 新規記事を追加する | `add_from_zip.py` | `python3 scripts/add_from_zip.py` |
+| 全記事をフルリビルドする | `convert_notion.py` | `python3 scripts/convert_notion.py --full` |
+| リンク切れツイートを確認する | `check_dead_tweets.py` | `python3 scripts/check_dead_tweets.py` |
+
+**重要**: 通常の記事追加では `convert_notion.py` は直接実行しない。`add_from_zip.py` が内部で `convert_notion.py` の変換関数を呼び出す。
+
+### add_from_zip.py の挙動
+
+#### 引数なし実行（推奨）
+```bash
+python3 scripts/add_from_zip.py
+```
+
+処理フロー:
+1. `inbox/work/` と `inbox/life/` 内の `.zip` ファイルを全て検出する
+2. 各ZIPについて以下を実行:
+   a. ZIPを一時ディレクトリに展開（入れ子ZIPにも対応）
+   b. 展開されたMDファイルからタイトルとスラッグを生成
+   c. `convert_notion.py` の変換パイプラインを適用（11種類の変換処理）
+   d. 変換結果を `src/content/blog/{slug}.md` に保存
+   e. 画像を `public/images/{slug}/` にコピー（HEIC→JPEG自動変換含む）
+   f. 処理済みZIPを `notion_export/Article/{Work|Life}/` にアーカイブ移動
+3. ZIPが1つもない場合は「inbox/ にZIPがありません」と表示して正常終了
+
+#### 個別ZIP指定（従来互換）
+```bash
+python3 scripts/add_from_zip.py path/to/export.zip --category work
+```
+- 指定したZIPのみを処理する
+- `--category` でカテゴリを指定（work または life、デフォルト: work）
+- この場合、アーカイブ移動は行われない
+
+#### エラー時の挙動
+- ZIPの展開に失敗 → エラー表示して次のZIPへ進む（1件の失敗で全体が止まらない）
+- ZIP内にMDファイルがない → 警告表示してスキップ
+- 変換中のエラー → エラー表示、ZIPはinboxに残す（アーカイブ移動しない）
+
+### convert_notion.py の挙動
+
+#### 引数なし実行
+```bash
+python3 scripts/convert_notion.py
+```
+- 「新規記事の追加は `add_from_zip.py` を使ってください」と案内を表示
+- 何も変換しない
+
+#### --full フラグ付き実行
+```bash
+python3 scripts/convert_notion.py --full
+```
+- `notion_export/Article/` 配下の全MD（Work + Life）を処理
+- 全記事を上書きする（既存記事も含めてフルリビルド）
+- **通常は使わない**。変換ロジックを修正した後に全記事に反映したい場合のみ使用
+
+### AIエージェントが記事を追加する手順
+
+1. ユーザーからNotionエクスポートのZIPファイルが提供される
+2. ZIPをカテゴリに応じて `inbox/work/` または `inbox/life/` に配置する
+3. `python3 scripts/add_from_zip.py` を実行する
+4. 出力を確認し、エラーがないことを確認する
+5. `npm run dev` でローカルプレビューし、表示を確認する
+6. **git commit, git push は実行しない**（ユーザーがエディタ上で行う）

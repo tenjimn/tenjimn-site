@@ -8,6 +8,12 @@ node_modules/
 notion_export/
 notion_zip/
 
+# Inbox (new article ZIPs, not tracked except README and .gitkeep)
+inbox/work/*
+!inbox/work/.gitkeep
+inbox/life/*
+!inbox/life/.gitkeep
+
 # OS files
 .DS_Store
 Thumbs.db

@@ -846,9 +846,10 @@ def process_category(category_name: str, category_dir: Path):
     return count
 
 
-def main():
+def full_rebuild():
+    """notion_export/ 配下の全記事をフルリビルドする（従来の動作）。"""
     print("=" * 60)
-    print("🔄 Notion Export → Astro Blog 変換ツール")
+    print("🔄 Notion Export → Astro Blog 変換ツール（フルリビルド）")
     print("=" * 60)
 
     # 出力ディレクトリ作成
@@ -878,5 +879,37 @@ def main():
     print("=" * 60)
 
 
+def main():
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description='Notion Export → Astro Blog 変換ツール',
+        epilog='通常の記事追加は add_from_zip.py を使ってください。'
+    )
+    parser.add_argument(
+        '--full',
+        action='store_true',
+        help='notion_export/ 配下の全記事をフルリビルドする'
+    )
+
+    args = parser.parse_args()
+
+    if args.full:
+        full_rebuild()
+    else:
+        print("=" * 60)
+        print("ℹ️  新規記事の追加は add_from_zip.py を使ってください")
+        print("=" * 60)
+        print()
+        print("使い方:")
+        print("  1. NotionエクスポートのZIPを inbox/work/ または inbox/life/ に置く")
+        print("  2. python3 scripts/add_from_zip.py を実行する")
+        print()
+        print("フルリビルド（全記事を再変換）が必要な場合:")
+        print("  python3 scripts/convert_notion.py --full")
+        print()
+
+
 if __name__ == '__main__':
     main()
+
